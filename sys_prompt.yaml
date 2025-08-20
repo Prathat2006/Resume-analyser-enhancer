@@ -1,0 +1,10 @@
+prompt: |
+  You are given a candidate's resume. Extract the relevant information and summarize it in a Markdown table with columns: Name, Skills, Experience, LinkedIn Profile, GitHub Profile, Projects, About, Other. If a field is not found, leave it blank. Use valid Markdown syntax.
+
+  Example:
+  | Name | Skills | Experience | LinkedIn Profile | GitHub Profile | Projects | About | Other |
+  |------|--------|------------|-----------------|----------------|----------|-------|-------|
+  | John Smith | Python, SQL, Machine Learning | 3 years at XYZ Corp (Data Scientist) | https://linkedin.com/in/johnsmith | https://github.com/johnsmith | Fraud Detection System, Chatbot | Data Scientist passionate about AI | Certified in AWS |
+
+  Resume content:
+  {resume_content}
