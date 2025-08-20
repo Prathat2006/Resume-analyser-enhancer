@@ -13,7 +13,8 @@ class LLMManager:
     def __init__(self, config_path='config.ini'):
         self.config = self.load_config(config_path)
         # self.DEFAULT_FALLBACK_ORDER = ['lmstudio','ollama','openrouter', 'groq']
-        self.DEFAULT_FALLBACK_ORDER = ['lmstudio','ollama']
+        self.DEFAULT_FALLBACK_ORDER = ['groq','lmstudio','ollama','openrouter', 'groq']
+        # self.DEFAULT_FALLBACK_ORDER = ['lmstudio','ollama']
 
     def load_config(self, config_path):
         try:
