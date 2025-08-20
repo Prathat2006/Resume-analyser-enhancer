@@ -1,4 +1,3 @@
-from unittest import loader
 from langchain_community.document_loaders import PyPDFLoader
 import pymupdf
 def read_pdf_to_text(file_path):
@@ -7,7 +6,7 @@ def read_pdf_to_text(file_path):
     for page in doc:
         text += page.get_text()
     return text
-print(read_pdf_to_text("resume0.pdf"))
+# print(read_pdf_to_text("resume0.pdf"))
 
 
 def lang_pdfreader(file_path):
@@ -16,4 +15,4 @@ def lang_pdfreader(file_path):
     documents = loader.load()
     return documents
 
-print(lang_pdfreader("resume0.pdf"))
+# print(lang_pdfreader("resume0.pdf"))

@@ -1,6 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
-from langchain.prompts import PromptTemplate
+# from langchain.prompts import PromptTemplate
 from llminit import LLMManager
 
 manager = LLMManager()

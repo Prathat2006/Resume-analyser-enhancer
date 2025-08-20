@@ -1,23 +1,10 @@
 # from langchain_community.document_loaders import PyPDFLoader
-from langchain.prompts import PromptTemplate
+# from backend.resume_praserer import resume_extractor
 
-from llminit import LLMManager
-from resloader import lang_pdfreader
-import yaml
+# print(type(resume_extractor("resume0.pdf")))
 
-with open("sys_prompt.yaml", "r") as f:
-    yaml_data = yaml.safe_load(f)
+from backend.naukridotcomfetcher import scrape_job_selenium
+from backend.jobdetailstructurer import structurer
 
 
-documents = lang_pdfreader("resume0.pdf")
-manager = LLMManager()
-llm_instances = manager.setup_llm_with_fallback()
-
-
-sys_prompt = yaml_data["prompt"]
-prompt = PromptTemplate(template=sys_prompt, input_variables=["resume_content"])
-
-# Invoke LLM with fallback
-print("----"*50)
-response = manager.invoke_with_fallback(llm_instances, manager.DEFAULT_FALLBACK_ORDER, prompt.format(resume_content=documents[0].page_content))
-print(response)
+print(type(structurer(scrape_job_selenium("https://www.naukri.com/job-listings-data-science-engineer-persistent-pune-5-to-10-years-300725032355?src=companyPageJobsDesk&sid=17556979136603746&xp=2&px=1"))))
