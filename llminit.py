@@ -5,7 +5,7 @@ from langchain_ollama import ChatOllama
 from langchain_groq import ChatGroq
 from openai import OpenAI
 from langchain_core.runnables import Runnable
-
+from langchain.output_parsers import PydanticOutputParser
 # Load environment variables from .env
 load_dotenv()
 
@@ -62,16 +62,17 @@ class LLMManager:
                         model=cfg['model'],
                         temperature=float(cfg.get('temperature', 0.0))
                     )
-
                 elif source == 'groq':
                     api_key = os.getenv('GROQ_API_KEY')
                     if not api_key:
                         raise ValueError("GROQ_API_KEY not found")
-                    llm_instances[source] = ChatGroq(
+                    groq_client = ChatGroq(
                         model=cfg['model'],
                         temperature=float(cfg['temperature']),
                         api_key=api_key
                     )
+                    llm_instances[source] = GroqLLMWrapper(groq_client)
+                
                 elif source == 'ollama':
                     llm_instances[source] = ChatOllama(
                         model=cfg['model'],
@@ -87,21 +88,69 @@ class LLMManager:
             raise Exception("No LLMs could be set up from the fallback order.")
         return llm_instances
 
-    def invoke_with_fallback(self, llm_instances, fallback_order, input_data):
+    def invoke_with_fallback(self, llm_instances, fallback_order, input_data, output_model=None):
         for source in fallback_order:
             if source in llm_instances:
                 try:
-                    result = llm_instances[source].invoke(input_data)
-                    if hasattr(result, 'content'):  # For AIMessage from Groq/Ollama
+                    llm = llm_instances[source]
+
+                    # Wrap in structured output if schema provided
+                    if output_model:
+                        llm = llm.with_structured_output(output_model)
+
+                    result = llm.invoke(input_data)
+
+                    # If structured, result is already a Pydantic object
+                    if output_model:
+                        print(f"Successfully used {source} LLM (structured).")
+                        return result
+
+                    # Otherwise, normalize to string
+                    if hasattr(result, 'content'):  # For AIMessage (Groq/Ollama)
                         result = result.content
                     if not isinstance(result, str):
                         raise ValueError(f"Unexpected result type from {source}: {type(result)}")
-                    print(f"Successfully used {source} LLM.") # comment for final only for debugging
+
+                    print(f"Successfully used {source} LLM (raw).")
                     return result
+
                 except Exception as e:
-                    print(f"Failed with {source}: {e}. Falling back to next LLM.") # comment for final only for debugging
+                    print(f"Failed with {source}: {e}. Falling back to next LLM.")
                     continue
+                
         return "Error: All LLMs in fallback chain failed."
+    
+
+
+
+class GroqLLMWrapper(Runnable):
+    def __init__(self, groq_client):
+        super().__init__()
+        self.groq_client = groq_client  # This is the ChatGroq instance
+
+    def invoke(self, input, config=None):
+        return self.groq_client.invoke(input, config=config)
+
+    def with_structured_output(self, schema):
+        """Wrap Groq with PydanticOutputParser for structured outputs"""
+        parser = PydanticOutputParser(pydantic_object=schema)
+
+        class StructuredGroq:
+            def __init__(self, groq_llm, parser):
+                self.groq_llm = groq_llm
+                self.parser = parser
+
+            def invoke(self, prompt, config=None):
+                # Add format instructions to force JSON-like response
+                formatted_prompt = str(prompt) + "\n" + self.parser.get_format_instructions()
+                response = self.groq_llm.invoke(formatted_prompt, config=config)
+                # Handle AIMessage from Groq
+                if hasattr(response, "content"):
+                    response = response.content
+                return self.parser.parse(response)
+
+        return StructuredGroq(self, parser)
+
 
 class OpenRouterLLM(Runnable):
     def __init__(self, client, model, temperature, site_url, site_name):
@@ -130,6 +179,7 @@ class OpenRouterLLM(Runnable):
             print(f"Error during OpenRouter invocation: {e}")
             raise
 
+
 class LMStudioLLM(Runnable):
     def __init__(self, client, model, temperature):
         super().__init__()
@@ -140,13 +190,11 @@ class LMStudioLLM(Runnable):
     def invoke(self, input, config=None):
         prompt = str(input)
         try:
-            # LMStudio compatible local OpenAI-like endpoint
             completion = self.client.chat.completions.create(
                 model=self.model,
                 temperature=float(self.temperature),
                 messages=[{"role": "user", "content": prompt}]
             )
-            # match the same extraction logic as OpenRouterLLM
             result = completion.choices[0].message.content
             if not result:
                 raise ValueError("LMStudio returned an empty response")
@@ -154,3 +202,29 @@ class LMStudioLLM(Runnable):
         except Exception as e:
             print(f"Error during LMStudio invocation: {e}")
             raise
+
+    def with_structured_output(self, schema):
+        """Emulate structured output using PydanticOutputParser"""
+        parser = PydanticOutputParser(pydantic_object=schema)
+
+        class StructuredLMStudio:
+            def __init__(self, llm, parser):
+                self.llm = llm
+                self.parser = parser
+
+            def invoke(self, prompt, config=None):
+                # add parser’s format instructions to the prompt
+                formatted_prompt = str(prompt) + "\n" + self.parser.get_format_instructions()
+                response = self.llm.invoke(formatted_prompt, config=config)
+                return self.parser.parse(response)
+
+        return StructuredLMStudio(self, parser)
+# def run_with_fallback(llm_dict, model, prompt, fallback_order):
+#     for name in fallback_order:  # e.g. ["groq", "ollama", "openrouter", "lmstudio"]
+#         if name in llm_dict:
+#             try:
+#                 structured_llm = llm_dict[name].with_structured_output(model)
+#                 return structured_llm.invoke(prompt)
+#             except Exception as e:
+#                 print(f"{name} failed: {e}")
+#     raise RuntimeError("All LLMs failed.")

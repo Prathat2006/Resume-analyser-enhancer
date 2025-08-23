@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field 
 from typing import List, Optional
 from llminit import LLMManager
 import json
@@ -49,16 +49,8 @@ def structurer(job_data: dict) -> JobPosting:
     """
 
     # Invoke LLM
-    response = manager.invoke_with_fallback(llm_instances, manager.DEFAULT_FALLBACK_ORDER, prompt)
+    response = manager.invoke_with_fallback(llm_instances, manager.DEFAULT_FALLBACK_ORDER, prompt, output_model=JobPosting)
 
 
-    raw_response = response
-    cleaned = clean_json(raw_response)
 
-    try:
-        parsed = json.loads(cleaned)
-        validated = JobPosting(**parsed)  # validate with Pydantic
-        return validated.model_dump_json(indent=2)
-
-    except Exception as e:
-        return cleaned
+    return response.model_dump_json(indent=2)
