@@ -1,7 +1,7 @@
 from llminit import LLMManager
-from backend.json_breaker import extract_experience , extract_education
+from backend.json_breaker import extract_experience , extract_education , extract_key_skills,extract_skills
 from pydantic import BaseModel,Field 
-
+import json
 manager = LLMManager()
 llm_instances = manager.setup_llm_with_fallback()
 
@@ -59,8 +59,10 @@ def check_eligibility(candidate_experience, candidate_education, job_experience,
         print(f"Error checking eligibility: {e}")
         return False
     
-def education_exp_importer(job,resume):
-    reqexp=extract_experience(job)
-    exp=extract_experience(resume)
-    reqedu=extract_education(job)
-    edu=extract_education(resume)
+# def education_exp_importer(job,resume):
+#     reqexp=extract_experience(job)
+#     exp=extract_experience(resume)
+#     reqedu=extract_education(job)
+#     edu=extract_education(resume)
+
+
