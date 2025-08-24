@@ -11,7 +11,8 @@ class JobPosting(BaseModel):
     location: Optional[str]
     experience: Optional[str]
     education: Optional[str]
-    skills: List[str] = Field(default_factory=list)
+    must_skills: List[str] = Field(default_factory=list)
+    key_skills: List[str] = Field(default_factory=list)
     description: Optional[str]
     others: Optional[str]
 
@@ -40,7 +41,8 @@ def structurer(job_data: dict) -> JobPosting:
         "location": "string or null",
         "experience": "string or null",
         "education": "string or null",
-        "skills": ["list of strings"],
+        "must_skills": ["list of strings"],
+        "key_skills": ["list of strings"],
         "description": "string or null",
         "others": "string or null"
     }}

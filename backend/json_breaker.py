@@ -178,6 +178,51 @@ def extract_key_skills(json_input):
         print(f"Error: {e}")
         return {"key_skills": []}
 
+def extract_must_skills(json_input):
+    """
+    Extract the must skills field from JSON input
+
+    Args:
+        json_input: Can be a JSON string, dictionary, or file path
+
+    Returns:
+        list: The key skills value or an empty list if not found
+    """
+    try:
+        # Handle different input types
+        if isinstance(json_input, str):
+            # Check if it's a file path
+            if json_input.endswith('.json'):
+                with open(json_input, 'r') as file:
+                    data = json.load(file)
+            else:
+                # Assume it's a JSON string
+                data = json.loads(json_input)
+        elif isinstance(json_input, dict):
+            # Already a dictionary
+            data = json_input
+        else:
+            raise ValueError("Input must be a JSON string, dictionary, or file path")
+
+        # Extract key skills field
+        must_skills = data.get('must_skills', [])
+
+        if not must_skills:
+            print("Must skills field not found in JSON")
+            return {"must_skills": []}
+
+        return {"must_skills": must_skills}
+
+    except json.JSONDecodeError as e:
+        print(f"Error parsing JSON: {e}")
+        return {"must_skills": []}
+    except FileNotFoundError as e:
+        print(f"File not found: {e}")
+        return {"must_skills": []}
+    except Exception as e:
+        print(f"Error: {e}")
+        return {"must_skills": []}
+
 # json_input = r"""
 # {
 #   "title": "Data Science Engineer",
