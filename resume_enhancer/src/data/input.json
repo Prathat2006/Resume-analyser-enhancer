@@ -1,0 +1,123 @@
+{
+  "education": [
+    {
+      "course": "M.Sc. Applied Mathematics",
+      "institution": "Defence Institute of Advanced Technology (DIAT)",
+      "location": "India",
+      "start_date": "2022",
+      "end_date": "2024"
+    },
+    {
+      "course": "B.E. Mechanical Engineering",
+      "institution": "BNM Institute of Technology (VTU)",
+      "location": "India",
+      "start_date": "2017",
+      "end_date": "2021"
+    }
+  ],
+  "experience": [
+    {
+      "title": "Project Trainee – Digital-Analytics & Computer-Vision",
+      "company": "CAIR‑DRDO",
+      "location": "Bengaluru",
+      "start_date": "Aug 2023",
+      "end_date": "Mar 2024",
+      "description": [
+        "Worked on digital analytics and computer‑vision projects, building data‑fusion pipelines and predictive models."
+      ]
+    },
+    {
+      "title": "Intern – Software Development & Data Engineering",
+      "company": "Cognizant",
+      "location": "Bengaluru",
+      "start_date": "Mar 2021",
+      "end_date": "Sep 2021",
+      "description": [
+        "Developed software solutions and data‑engineering workflows, contributing to backend services and data pipelines."
+      ]
+    }
+  ],
+  "skills": [
+    {
+      "title": "Digital Marketing",
+      "elements": [
+        "SEM",
+        "PPC",
+        "Google Ads",
+        "SEO",
+        "Keyword research",
+        "On-page optimisation",
+        "Email marketing",
+        "Social-media analytics",
+        "Content performance tracking",
+        "Campaign-budget monitoring",
+        "ROI analysis"
+      ]
+    },
+    {
+      "title": "Data & Analytics",
+      "elements": [
+        "Google Analytics",
+        "Tag Manager",
+        "Data visualisation (Streamlit, Tableau, Power BI)",
+        "Marketing-operations reporting",
+        "KPI dashboards",
+        "Statistical modelling",
+        "Hypothesis testing"
+      ]
+    },
+    {
+      "title": "Programming & Tools",
+      "elements": [
+        "Python",
+        "SQL",
+        "R",
+        "MATLAB",
+        "Pandas",
+        "NumPy",
+        "Scikit-Learn",
+        "TensorFlow",
+        "PyTorch",
+        "REST APIs",
+        "Flask",
+        "FastAPI",
+        "Git",
+        "Docker",
+        "Azure",
+        "AWS",
+        "Linux (Ubuntu)",
+        "Windows"
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "title": "Fund-Trail Analysis & Predictive Modelling",
+      "description": "Flask + ML web app with Hidden Markov Models and event tracking",
+      "link": ""
+    },
+    {
+      "title": "Sign-Language Recognition (Computer-Vision)",
+      "description": "Real-time LRCN model",
+      "link": ""
+    },
+    {
+      "title": "HR Attrition Analytics",
+      "description": "End-to-end exploratory data analysis on IBM HR dataset",
+      "link": ""
+    }
+  ],
+  "personal": [
+    {
+      "name": "AGASTHYA OMKUMAR",
+      "about": "Data-driven Machine-Learning Engineer with experience building predictive models, data-fusion pipelines, and interactive dashboards; skilled in SEM, PPC, Google Analytics, Python, and visualization; passionate about applying analytical expertise to digital-marketing and campaign management."
+    }
+  ],
+  "contact": [
+    {
+      "email": "agasthya.omkumar.mock@email.com",
+      "phone": "+91 98765 43210",
+      "location": "Bengaluru, Karnataka, India"
+    }
+  ]
+}
