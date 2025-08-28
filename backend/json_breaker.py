@@ -222,6 +222,52 @@ def extract_must_skills(json_input):
     except Exception as e:
         print(f"Error: {e}")
         return {"must_skills": []}
+    
+
+def extract_github_profile(json_input):
+    """
+    Extract the GitHub profile field from JSON input
+
+    Args:
+        json_input: Can be a JSON string, dictionary, or file path
+
+    Returns:
+        list: The GitHub profile value or an empty list if not found
+    """
+    try:
+        # Handle different input types
+        if isinstance(json_input, str):
+            # Check if it's a file path
+            if json_input.endswith('.json'):
+                with open(json_input, 'r') as file:
+                    data = json.load(file)
+            else:
+                # Assume it's a JSON string
+                data = json.loads(json_input)
+        elif isinstance(json_input, dict):
+            # Already a dictionary
+            data = json_input
+        else:
+            raise ValueError("Input must be a JSON string, dictionary, or file path")
+
+        # Extract key skills field
+        github_profile = data.get('github_profile', [])
+
+        if not github_profile:
+            print("GitHub profile field not found in JSON")
+            return {"github_profile ": []}
+
+        return {"github_profile": github_profile }
+
+    except json.JSONDecodeError as e:
+        print(f"Error parsing JSON: {e}")
+        return {"github_profile": []}
+    except FileNotFoundError as e:
+        print(f"File not found: {e}")
+        return {"github_profile": []}
+    except Exception as e:
+        print(f"Error: {e}")
+        return {"github_profile": []}
 
 # json_input = r"""
 # {

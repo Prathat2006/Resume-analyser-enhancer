@@ -5,6 +5,9 @@ import time
 
 def scrape_job_selenium(url: str) -> dict:
     options = Options()
+    options.add_experimental_option("excludeSwitches", ["enable-logging"])  # Suppress DevTools logs
+    options.add_argument("--log-level=3")  # 0 = INFO, 1 = WARNING, 2 = ERROR, 3 = FATAL (shows nothing)
+
     options.add_argument("--headless=new")   # use new headless mode (Chrome 109+)
     options.add_argument("--disable-gpu")
     options.add_argument("--window-size=1920,1080")  # set full window size

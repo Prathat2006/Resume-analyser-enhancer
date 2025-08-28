@@ -1,15 +1,26 @@
-# # from langchain_community.document_loaders import PyPDFLoader
+# # # from langchain_community.document_loaders import PyPDFLoader
 from backend.resume_praserer import resume_extractor
-
-resume=((resume_extractor("resume0.pdf")))
-
 from backend.naukridotcomfetcher import scrape_job_selenium
 from backend.jobdetailstructurer import structurer
+from backend.embedding_scorere import final_candidate_score
+from resume_enhancer.enhance import enhance_resume
+from backend.resloader import lang_pdfreader, read_pdf_to_text
 
 
+resume=((resume_extractor(r"resume0.pdf")))
+# print(resume)
 # job=(structurer(scrape_job_selenium("https://www.naukri.com/job-listings-data-science-engineer-persistent-pune-5-to-10-years-300725032355?src=companyPageJobsDesk&sid=17556979136603746&xp=2&px=1")))
-job=(structurer(scrape_job_selenium("https://www.naukri.com/job-listings-data-architect-tata-consultancy-services-hyderabad-pune-delhi-ncr-10-to-16-years-120825020348?src=companyPageJobsDesk&sid=17556814837582736&xp=1&px=1")))
-print(job)
+job=(structurer(scrape_job_selenium("https://www.naukri.com/job-listings-campaign-management-new-associate-accenture-solutions-pvt-ltd-hyderabad-0-to-1-years-280725913582?src=seo_srp&sid=17563086863932737&xp=1&px=1")))
+# print(job)
+# print("==="*50)
+documents = lang_pdfreader("resume0.pdf")
+# documents = read_pdf_to_text("resume0.pdf")
+
+# # resume_text = "\n".join([doc.page_content for doc in documents])
+resume_text = documents
+print(enhance_resume(job, resume_text,resume))
+
+# print(final_candidate_score(job, resume))
 
 # # from backend.github_praser import fetch_github_repos
 
@@ -46,7 +57,7 @@ print(job)
 # annu = manager.invoke_with_fallback(llm_instances, manager.DEFAULT_FALLBACK_ORDER, prompt)
 # print(annu)
 # from backend.json_breaker import extract_skills, extract_key_skills, extract_must_skills
-from backend.embedding_scorere import score_skills, final_candidate_score
+
 
 # job = {
 #        "must_skills": ["Python", "Machine Learning"],
@@ -71,4 +82,9 @@ from backend.embedding_scorere import score_skills, final_candidate_score
 # print("Final Score:", score)
 # print("Debug:", dbg)
 
-print(final_candidate_score(job, resume))
+
+
+
+# from backend.spelling_Check import check_spelling
+
+# print(check_spelling("resume0.pdf"))

@@ -1,5 +1,7 @@
 from langchain_community.document_loaders import PyPDFLoader
-import pymupdf
+import fitz as pymupdf
+
+
 def read_pdf_to_text(file_path):
     doc = pymupdf.open(file_path)
     text = ""
