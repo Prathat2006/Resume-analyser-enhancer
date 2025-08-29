@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Evaluator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+            max-width: 1400px;
+            margin: 0 auto;
+            gap: 2rem;
+            padding: 2rem;
+        }
+
+        .left-panel, .right-panel {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .panel-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            text-align: center;
+            background: linear-gradient(45deg, #64b5f6, #42a5f5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .upload-section {
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #b0bec5;
+        }
+
+        input[type="file"], input[type="url"] {
+            width: 100%;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            color: #ffffff;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        input[type="file"]:focus, input[type="url"]:focus {
+            outline: none;
+            border-color: #42a5f5;
+            box-shadow: 0 0 20px rgba(66, 165, 245, 0.3);
+        }
+
+        input[type="url"]::placeholder {
+            color: #78909c;
+        }
+
+        .check-button {
+            width: 100%;
+            padding: 1.2rem;
+            background: linear-gradient(45deg, #42a5f5, #1976d2);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .check-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(66, 165, 245, 0.4);
+        }
+
+        .check-button:disabled {
+            background: rgba(255, 255, 255, 0.1);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .loading {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid #42a5f5;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .results-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            text-align: center;
+        }
+
+        .score-circles {
+            display: flex;
+            gap: 3rem;
+            margin-bottom: 2rem;
+        }
+
+        .circle-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .progress-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            position: relative;
+            background: conic-gradient(var(--progress-color) var(--progress-percent), rgba(255, 255, 255, 0.1) var(--progress-percent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--progress-color);
+            transition: all 0.8s ease;
+        }
+
+        .progress-circle::before {
+            content: '';
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            background: #1a1a2e;
+            border-radius: 50%;
+            z-index: -1;
+        }
+
+        .circle-label {
+            font-size: 0.9rem;
+            color: #b0bec5;
+            font-weight: 500;
+        }
+
+        .result-details {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .eligible {
+            background: linear-gradient(45deg, #4caf50, #8bc34a);
+        }
+
+        .not-eligible {
+            background: linear-gradient(45deg, #f44336, #ff5722);
+        }
+
+        .reason {
+            color: #b0bec5;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .empty-state {
+            color: #78909c;
+            font-size: 1.1rem;
+            opacity: 0.8;
+        }
+
+        .error-message {
+            background: rgba(244, 67, 54, 0.1);
+            border: 1px solid rgba(244, 67, 54, 0.3);
+            color: #ff5252;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                height: auto;
+                padding: 1rem;
+                gap: 1rem;
+            }
+
+            .score-circles {
+                gap: 2rem;
+            }
+
+            .progress-circle {
+                width: 100px;
+                height: 100px;
+                font-size: 1.3rem;
+            }
+
+            .progress-circle::before {
+                width: 70px;
+                height: 70px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="left-panel">
+            <h2 class="panel-title">Upload Resume</h2>
+            
+            <div id="evaluationForm">
+                <div class="form-group">
+                    <label for="resumeFile">Resume File</label>
+                    <input type="file" id="resumeFile" accept=".pdf,.doc,.docx" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="jobUrl">Job Posting URL</label>
+                    <input type="url" id="jobUrl" placeholder="https://example.com/job-posting" required>
+                </div>
+                
+                <button type="button" class="check-button" id="checkButton">
+                    Check Resume
+                </button>
+            </div>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <span>Evaluating resume...</span>
+            </div>
+            
+            <div id="errorMessage" class="error-message" style="display: none;"></div>
+        </div>
+
+        <div class="right-panel">
+            <h2 class="panel-title">Evaluation Results</h2>
+            
+            <div class="results-section" id="resultsSection">
+                <div class="empty-state" id="emptyState">
+                    Upload your resume and job URL to see the evaluation results
+                </div>
+                
+                <div id="results" style="display: none;">
+                    <div class="score-circles">
+                        <div class="circle-container">
+                            <div class="progress-circle" id="finalScoreCircle">
+                                <span id="finalScoreText">0%</span>
+                            </div>
+                            <div class="circle-label">Final Score</div>
+                        </div>
+                        
+                        <div class="circle-container">
+                            <div class="progress-circle" id="baseScoreCircle">
+                                <span id="baseScoreText">0%</span>
+                            </div>
+                            <div class="circle-label">Base Score</div>
+                        </div>
+                    </div>
+                    
+                    <div class="result-details">
+                        <div id="statusBadge" class="status-badge"></div>
+                        <div id="reasonText" class="reason"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function getScoreColor(score) {
+            if (score >= 70) return '#4caf50';
+            if (score >= 50) return '#ff9800';
+            return '#f44336';
+        }
+
+        function updateCircle(circleId, textId, score) {
+            const circle = document.getElementById(circleId);
+            const text = document.getElementById(textId);
+            const color = getScoreColor(score);
+            const percentage = Math.min(score, 100);
+            
+            circle.style.setProperty('--progress-color', color);
+            circle.style.setProperty('--progress-percent', `${percentage * 3.6}deg`);
+            text.textContent = `${score}%`;
+        }
+
+        function showResults(data) {
+            const emptyState = document.getElementById('emptyState');
+            const results = document.getElementById('results');
+            const statusBadge = document.getElementById('statusBadge');
+            const reasonText = document.getElementById('reasonText');
+            
+            emptyState.style.display = 'none';
+            results.style.display = 'block';
+            
+            // Update circles
+            updateCircle('finalScoreCircle', 'finalScoreText', data.final_score);
+            updateCircle('baseScoreCircle', 'baseScoreText', data.base_score || 0);
+            
+            // Update status badge
+            statusBadge.className = `status-badge ${data.eligible ? 'eligible' : 'not-eligible'}`;
+            statusBadge.textContent = data.eligible ? 'ELIGIBLE' : 'NOT ELIGIBLE';
+            
+            // Update reason
+            reasonText.textContent = data.reason || 'Evaluation completed successfully.';
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        function setLoading(isLoading) {
+            const button = document.getElementById('checkButton');
+            const loading = document.getElementById('loading');
+            
+            button.disabled = isLoading;
+            button.textContent = isLoading ? 'Evaluating...' : 'Check Resume';
+            loading.style.display = isLoading ? 'flex' : 'none';
+        }
+
+        // Configuration - Update this URL to match your backend server
+        const API_BASE_URL = 'http://localhost:8000'; // Change this to your backend URL
+        
+        async function handleEvaluation() {
+            console.log('Starting evaluation...');
+            
+            const fileInput = document.getElementById('resumeFile');
+            const urlInput = document.getElementById('jobUrl');
+            
+            // Clear any previous errors
+            document.getElementById('errorMessage').style.display = 'none';
+            
+            if (!fileInput.files[0] || !urlInput.value.trim()) {
+                showError('Please select a resume file and enter a job URL.');
+                return;
+            }
+            
+            setLoading(true);
+            
+            try {
+                console.log('Creating FormData...');
+                const formData = new FormData();
+                formData.append('file', fileInput.files[0]);
+                formData.append('url', urlInput.value.trim());
+                
+                console.log('Sending request to:', `${API_BASE_URL}/evaluate`);
+                console.log('File:', fileInput.files[0].name);
+                console.log('URL:', urlInput.value.trim());
+                
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 300000); // 5 minutes timeout
+                
+                const response = await fetch(`${API_BASE_URL}/evaluate`, {
+                    method: 'POST',
+                    body: formData,
+                    signal: controller.signal
+                });
+                
+                clearTimeout(timeoutId);
+                
+                console.log('Response status:', response.status);
+                console.log('Response ok:', response.ok);
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Server error response:', errorText);
+                    throw new Error(`Server error: ${response.status} - ${errorText}`);
+                }
+                
+                const data = await response.json();
+                console.log('Received data:', data);
+                showResults(data);
+                
+            } catch (error) {
+                console.error('Complete error details:', error);
+                if (error.name === 'AbortError') {
+                    showError('Request timed out. The evaluation is taking too long.');
+                } else {
+                    showError(`Failed to evaluate resume: ${error.message}`);
+                }
+            } finally {
+                setLoading(false);
+            }
+        }
+        
+        // Wait for DOM to be fully loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            const checkButton = document.getElementById('checkButton');
+            if (checkButton) {
+                checkButton.addEventListener('click', handleEvaluation);
+            }
+        });
+    </script>
+</body>
+</html>

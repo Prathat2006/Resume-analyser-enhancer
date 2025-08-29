@@ -1,8 +1,12 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field 
 from typing import List, Optional
 from llminit import LLMManager
 import json
 import re 
+from configobj import ConfigObj
+
+config = ConfigObj('config.ini')
+order = config["mode"]["order"]
 
 # Define schema with Pydantic
 class JobPosting(BaseModel):
@@ -11,7 +15,8 @@ class JobPosting(BaseModel):
     location: Optional[str]
     experience: Optional[str]
     education: Optional[str]
-    skills: List[str] = Field(default_factory=list)
+    must_skills: List[str] = Field(default_factory=list)
+    key_skills: List[str] = Field(default_factory=list)
     description: Optional[str]
     others: Optional[str]
 
@@ -40,7 +45,8 @@ def structurer(job_data: dict) -> JobPosting:
         "location": "string or null",
         "experience": "string or null",
         "education": "string or null",
-        "skills": ["list of strings"],
+        "must_skills": ["list of strings"],
+        "key_skills": ["list of strings"],
         "description": "string or null",
         "others": "string or null"
     }}
@@ -49,16 +55,6 @@ def structurer(job_data: dict) -> JobPosting:
     """
 
     # Invoke LLM
-    response = manager.invoke_with_fallback(llm_instances, manager.DEFAULT_FALLBACK_ORDER, prompt)
+    response = manager.invoke_with_fallback(llm_instances, order, prompt, output_model=JobPosting)
 
-
-    raw_response = response
-    cleaned = clean_json(raw_response)
-
-    try:
-        parsed = json.loads(cleaned)
-        validated = JobPosting(**parsed)  # validate with Pydantic
-        return validated.model_dump_json(indent=2)
-
-    except Exception as e:
-        return cleaned
+    return response.model_dump_json(indent=2)
