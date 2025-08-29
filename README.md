@@ -57,7 +57,7 @@ pip install torch torchvision torchaudio --index-url https://download.pytorch.or
 
 ### 4. Frontend Setup
 
-Frontend is available here 👉 [Frontend Link](https://github.com/yourusername/resume-analyzer-frontend)
+Frontend is available here 👉 [Frontend Link](https://github.com/Prathat2006/Resume-analyser-enhancer-frontend.git)
 
 ```bash
 cd frontend
@@ -183,8 +183,7 @@ npm run dev
 ```
 
 or 
-if frontend is not cloned
-```bash
+if frontend is not cloned```bash
 streamlit run ui/streamlitui.py
 ```
 
