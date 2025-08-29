@@ -28,6 +28,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["X-Score"],  # <--- required
 )
 # Directory to save resumes
 UPLOAD_DIR = "uploads"
@@ -97,10 +98,15 @@ async def enhance_candidate_resume(session_id: str = Form(...)):
     output_filename = f"enhanced_{session_id}.pdf"
     # output_path = os.path.join(UPLOAD_DIR, output_filename)
     output_path=generate_resume_from_json(resume_dict)  
-
+    resume_data=resume_extractor(output_path)
+    enhance_score=final_candidate_score(job_data,resume_data)
     # Step 6: Return PDF as response
-    return FileResponse(
+    response = FileResponse(
         path=output_path,
         filename=output_filename,
         media_type="application/pdf"
     )
+
+    
+    response.headers["X-Score"] = json.dumps(enhance_score)
+    return response

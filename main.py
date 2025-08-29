@@ -11,31 +11,31 @@ import json
 print("import done")
 
 
-resume=((resume_extractor(r"resume0.pdf")))
-print(resume)
+# resume=((resume_extractor(r"resume0.pdf")))
+# print(resume)
 # job=(structurer(scrape_job_selenium("https://www.naukri.com/job-listings-data-science-engineer-persistent-pune-5-to-10-years-300725032355?src=companyPageJobsDesk&sid=17556979136603746&xp=2&px=1")))
-job=(structurer(scrape_job_selenium("https://www.naukri.com/job-listings-campaign-management-new-associate-accenture-solutions-pvt-ltd-hyderabad-0-to-1-years-280725913582?src=seo_srp&sid=17563086863932737&xp=1&px=1")))
-print(job)
-print("==="*50)
+# job=(structurer(scrape_job_selenium("https://www.naukri.com/job-listings-campaign-management-new-associate-accenture-solutions-pvt-ltd-hyderabad-0-to-1-years-280725913582?src=seo_srp&sid=17563086863932737&xp=1&px=1")))
+# print(job)
+# print("==="*50)
 # documents = lang_pdfreader("resume0.pdf")
-documents = read_pdf_to_text("resume0.pdf")
+# documents = read_pdf_to_text("resume0.pdf")
+# print(documents)
+# # # resume_text = "\n".join([doc.page_content for doc in documents])
+# resume_text = documents
+# score,resume_enhanced = enhance_resume(job, resume_text,resume)
+# # print(score)
+# # print("==="*40)
+# # print(resume_enhanced)
+# resume_text=resume_enhanced
+# enhance_resume=format_resume(resume_text)
+# # print(enhance_resume)
+# # print(type(enhance_resume))
+# resume_dict = json.loads(enhance_resume)
 
-# # resume_text = "\n".join([doc.page_content for doc in documents])
-resume_text = documents
-score,resume_enhanced = enhance_resume(job, resume_text,resume)
-# print(score)
-# print("==="*40)
-# print(resume_enhanced)
-resume_text=resume_enhanced
-enhance_resume=format_resume(resume_text)
-# print(enhance_resume)
-# print(type(enhance_resume))
-resume_dict = json.loads(enhance_resume)
+# # now pass dict instead of string
+# generate_resume_from_json(resume_dict)
 
-# now pass dict instead of string
-generate_resume_from_json(resume_dict)
-
-print("backend done")
+# print("backend done")
 
 # print(final_candidate_score(job, resume))
 
