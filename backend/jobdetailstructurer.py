@@ -3,6 +3,10 @@ from typing import List, Optional
 from llminit import LLMManager
 import json
 import re 
+from configobj import ConfigObj
+
+config = ConfigObj('config.ini')
+order = config["mode"]["order"]
 
 # Define schema with Pydantic
 class JobPosting(BaseModel):
@@ -51,8 +55,6 @@ def structurer(job_data: dict) -> JobPosting:
     """
 
     # Invoke LLM
-    response = manager.invoke_with_fallback(llm_instances, manager.DEFAULT_FALLBACK_ORDER, prompt, output_model=JobPosting)
-
-
+    response = manager.invoke_with_fallback(llm_instances, order, prompt, output_model=JobPosting)
 
     return response.model_dump_json(indent=2)

@@ -1,10 +1,9 @@
 import requests
 from bs4 import BeautifulSoup
 # from langchain.prompts import PromptTemplate
-from llminit import LLMManager
 
-manager = LLMManager()
-llm_instances = manager.setup_llm_with_fallback()
+
+
 # --- Step 1: Scrape GitHub Profile ---
 
 def fetch_github_repos(url: str):

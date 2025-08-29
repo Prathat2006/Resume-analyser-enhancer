@@ -4,7 +4,10 @@ from pydantic import BaseModel, Field
 from llminit import LLMManager
 from backend.resloader import lang_pdfreader
 import yaml
+from configobj import ConfigObj
 
+
+config=ConfigObj('config.ini')
 # Define structured schema
 class ResumeData(BaseModel):
     name: str = Field(default="", description="Candidate's full name")
@@ -25,11 +28,11 @@ def resume_extractor(file_path: str) -> ResumeData:
     # Load system prompt
     with open("sys_prompt.yaml", "r") as f:
         yaml_data = yaml.safe_load(f)
-
+    
     documents = lang_pdfreader(file_path)
     manager = LLMManager()
     llm_instances = manager.setup_llm_with_fallback()
-
+    order=config["mode"]["order"]
     # Build prompt (merge sys_prompt with format instructions)
     sys_prompt = yaml_data["prompt"]
     prompt = PromptTemplate(
@@ -43,7 +46,7 @@ def resume_extractor(file_path: str) -> ResumeData:
     print("---" * 40)
     raw_response = manager.invoke_with_fallback(
         llm_instances,
-        manager.DEFAULT_FALLBACK_ORDER,
+        order,
         prompt.format(resume_content=resume_text),
         output_model=ResumeData
     )
@@ -63,7 +66,7 @@ def resume_extractor_from_text(resume_text: str) -> ResumeData:
     # Load system prompt
     with open("sys_prompt.yaml", "r") as f:
         yaml_data = yaml.safe_load(f)
-
+    order=ConfigObj("config.ini")["mode"]["order"]
     # documents = lang_pdfreader(file_path)
     manager = LLMManager()
     llm_instances = manager.setup_llm_with_fallback()
@@ -81,7 +84,7 @@ def resume_extractor_from_text(resume_text: str) -> ResumeData:
     print("---" * 40)
     raw_response = manager.invoke_with_fallback(
         llm_instances,
-        manager.DEFAULT_FALLBACK_ORDER,
+        order,
         prompt.format(resume_content=resume_text),
         output_model=ResumeData
     )

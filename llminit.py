@@ -13,9 +13,26 @@ class LLMManager:
     def __init__(self, config_path='config.ini'):
         self.config = self.load_config(config_path)
         # self.DEFAULT_FALLBACK_ORDER = ['lmstudio','ollama','openrouter', 'groq']
-        self.DEFAULT_FALLBACK_ORDER = ['groq','lmstudio','ollama','openrouter', 'groq']
+        self.orders = {
+            "default": self.parse_order("default-order"),
+            "offline": self.parse_order("offline-order"),
+            "fast": self.parse_order("fast-order"),
+        }
+        self.DEFAULT_FALLBACK_ORDER = self.orders["default"]
+        # self.DEFAULT_FALLBACK_ORDER = defaultcfg
         # self.DEFAULT_FALLBACK_ORDER = ['lmstudio','ollama']
 
+    def parse_order(self, section):
+        try:
+            # ConfigObj already parses lists like order=['a','b']
+            order = self.config[section]['order']
+            if isinstance(order, str):
+                # if written without [], split by comma
+                order = [o.strip() for o in order.strip("[]").split(",")]
+            return order
+        except Exception as e:
+            raise Exception(f"Could not parse order from [{section}]: {e}")
+        
     def load_config(self, config_path):
         try:
             config = ConfigObj(config_path)
@@ -89,38 +106,39 @@ class LLMManager:
             raise Exception("No LLMs could be set up from the fallback order.")
         return llm_instances
 
-    def invoke_with_fallback(self, llm_instances, fallback_order, input_data, output_model=None):
+    def invoke_with_fallback(self, llm_instances, order_key, input_data, output_model=None):
+        # Resolve order key → actual list
+        if isinstance(order_key, str):
+            if order_key not in self.orders:
+                raise ValueError(f"Unknown fallback order '{order_key}'. Must be one of {list(self.orders.keys())}")
+            fallback_order = self.orders[order_key]
+        else:
+            fallback_order = order_key  # allow passing list directly
+
         for source in fallback_order:
             if source in llm_instances:
                 try:
                     llm = llm_instances[source]
-
-                    # Wrap in structured output if schema provided
                     if output_model:
                         llm = llm.with_structured_output(output_model)
 
                     result = llm.invoke(input_data)
 
-                    # If structured, result is already a Pydantic object
                     if output_model:
-                        print(f"Successfully used {source} LLM (structured).")
+                        print(f"✅ Used {source} (structured).")
                         return result
 
-                    # Otherwise, normalize to string
-                    if hasattr(result, 'content'):  # For AIMessage (Groq/Ollama)
+                    if hasattr(result, 'content'):
                         result = result.content
                     if not isinstance(result, str):
                         raise ValueError(f"Unexpected result type from {source}: {type(result)}")
 
-                    print(f"Successfully used {source} LLM (raw).")
+                    print(f"✅ Used {source} (raw).")
                     return result
-
                 except Exception as e:
-                    print(f"Failed with {source}: {e}. Falling back to next LLM.")
+                    print(f"⚠️ {source} failed: {e}. Trying next...")
                     continue
-                
-        return "Error: All LLMs in fallback chain failed."
-    
+        return "❌ All LLMs in fallback chain failed."    
 
 
 

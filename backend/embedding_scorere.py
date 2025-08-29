@@ -12,6 +12,7 @@ import time
 manager = LLMManager()
 llm_instances = manager.setup_llm_with_fallback()
 config = ConfigObj('config.ini')   
+order=config["mode"]["order"]
 current_time = int(time.time())
 current_date = time.strftime("%Y-%m-%d", time.localtime(current_time))
 # Define structured output model
@@ -58,7 +59,7 @@ def check_eligibility(candidate_experience, candidate_education, job_experience,
         # Call LLM with structured output
         response = manager.invoke_with_fallback(
             llm_instances,
-            manager.DEFAULT_FALLBACK_ORDER,
+            order,
             prompt,
             output_model=Eligibility
         )

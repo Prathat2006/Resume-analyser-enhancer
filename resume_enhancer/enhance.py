@@ -2,10 +2,14 @@ from llminit import LLMManager
 from backend.embedding_scorere import final_candidate_score  # your scorer
 import json
 from backend.resume_praserer import resume_extractor_from_text
+from configobj import ConfigObj
+
 # LLM setup
+
+config = ConfigObj('config.ini')
 manager = LLMManager()
 llm_instance = manager.setup_llm_with_fallback()
-
+order = config["mode"]["order"]
 # Prompt template
 prompt_template = """
 You are a professional resume writer.
@@ -35,14 +39,10 @@ def enhance_resume(job_json: dict, resume_content: str,resume_json: dict):
         job_json=json.dumps(job_json, indent=2),
         resume_content=resume_content
     )
-    enhanced = manager.invoke_with_fallback(llm_instance, manager.DEFAULT_FALLBACK_ORDER, prompt)
-    enhanced_resume = resume_extractor_from_text(enhanced)
+    enhanced = manager.invoke_with_fallback(llm_instance, order, prompt)
+    # enhanced_resume = resume_extractor_from_text(enhanced)
     # Step 3: Score after enhancement
-    new_score = final_candidate_score(job_json, enhanced_resume)
+    # new_score = final_candidate_score(job_json, enhanced_resume)
 
     # Step 4: Return results
-    return {
-        "baseline_score": baseline_score,
-        "new_score": new_score,
-        "enhanced_resume": enhanced_resume
-    },enhanced
+    return enhanced

@@ -1,16 +1,22 @@
 # # # from langchain_community.document_loaders import PyPDFLoader
-from backend.resume_praserer import resume_extractor
-from backend.naukridotcomfetcher import scrape_job_selenium
-from backend.jobdetailstructurer import structurer
-from backend.embedding_scorere import final_candidate_score,check_eligibility
-from resume_enhancer.enhance import enhance_resume
-from backend.resloader import lang_pdfreader, read_pdf_to_text
-from resume_enhancer.src.build import generate_resume_from_json
-from resume_enhancer.formater import format_resume
+# from backend.resume_praserer import resume_extractor
+# from backend.naukridotcomfetcher import scrape_job_selenium
+# from backend.jobdetailstructurer import structurer
+# from backend.embedding_scorere import final_candidate_score,check_eligibility
+# from resume_enhancer.enhance import enhance_resume
+# from backend.resloader import lang_pdfreader, read_pdf_to_text
+# from resume_enhancer.src.build import generate_resume_from_json
+# from resume_enhancer.formater import format_resume
 import json
+from llminit import LLMManager
+from configobj import ConfigObj
 print("import done")
-
-
+manager = LLMManager()
+llm_instances = manager.setup_llm_with_fallback()
+prompt="hi"
+order=ConfigObj('config.ini')["mode"]["order"]
+response = manager.invoke_with_fallback(llm_instances,order,prompt)
+print(response)
 # resume=((resume_extractor(r"resume0.pdf")))
 # print(resume)
 # job=(structurer(scrape_job_selenium("https://www.naukri.com/job-listings-data-science-engineer-persistent-pune-5-to-10-years-300725032355?src=companyPageJobsDesk&sid=17556979136603746&xp=2&px=1")))

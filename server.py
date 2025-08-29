@@ -88,7 +88,7 @@ async def enhance_candidate_resume(session_id: str = Form(...)):
     resume_text = read_pdf_to_text(file_path)
 
     # Step 3: Enhance resume
-    score, resume_enhanced = enhance_resume(job_data, resume_text, resume_data)
+    resume_enhanced = enhance_resume(job_data, resume_text, resume_data)
 
     # Step 4: Format resume JSON
     resume_formatted = format_resume(resume_enhanced)

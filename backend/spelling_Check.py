@@ -1,10 +1,12 @@
 from llminit import LLMManager
 from langchain.prompts import PromptTemplate
 from backend.resloader import lang_pdfreader
+from configobj import ConfigObj
+
 manager = LLMManager()
 llm_instances = manager.setup_llm_with_fallback()
-
-
+config = ConfigObj('config.ini')
+order = config["mode"]["order"]
 def check_spelling(filepath):
     documents = lang_pdfreader(filepath)
     sprompt = """
@@ -20,7 +22,7 @@ def check_spelling(filepath):
     resume_text = "\n".join([doc.page_content for doc in documents])
     raw_response = manager.invoke_with_fallback(
         llm_instances,
-        manager.DEFAULT_FALLBACK_ORDER,
+        order,
         prompt.format(resume_content=resume_text),
     )
     # output_model=ResumeData
