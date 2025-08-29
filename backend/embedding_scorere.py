@@ -6,10 +6,14 @@ from typing import Dict, List, Tuple
 import numpy as np
 from transformers import AutoTokenizer, AutoModel
 import torch
+from configobj import ConfigObj
 
+import time
 manager = LLMManager()
 llm_instances = manager.setup_llm_with_fallback()
-
+config = ConfigObj('config.ini')   
+current_time = int(time.time())
+current_date = time.strftime("%Y-%m-%d", time.localtime(current_time))
 # Define structured output model
 class Eligibility(BaseModel):
     eligible: bool = Field(
@@ -18,23 +22,24 @@ class Eligibility(BaseModel):
     )
 
 # Prompt template for eligibility check
-prompt_template = """
-You are a strict job eligibility checker. 
+prompt_template = """You are a strict job eligibility checker.
 Compare the candidate's qualifications with the job requirements.
+Current date is {today} for extracting user experience.
 
 Job Requirement:
-Experience: {job_experience} years
+Experience: {job_experience} years (if in a range like "0-1", take the lower bound for comparison)
 Education: {job_education}
 
 Candidate Profile:
-Experience: {candidate_experience} years
+Experience: {candidate_experience} (if given in months, convert to years and consider any nonzero month value as eligible for at least 0 years)
 Education: {candidate_education}
 
 Rules:
-1. Candidate must have at least the required years of experience.
-2. Candidate's education must be equal to or higher than the required education level.
-3. If both conditions are satisfied, return True. 
-4. If either experience OR education fails, return False.
+
+1.Candidate must have at least the required years of experience (treat months > 0 as meeting the minimum if requirement is 0 or range lower bound is 0).
+2.Candidate's education must be equal to or higher than the required education level.
+3.If both conditions are satisfied, return True.
+4.If either experience OR education fails, return False.
 
 Return only True or False.
 """
@@ -46,7 +51,8 @@ def check_eligibility(candidate_experience, candidate_education, job_experience,
             candidate_experience=candidate_experience,
             candidate_education=candidate_education,
             job_experience=job_experience,
-            job_education=job_education
+            job_education=job_education,
+            today=current_date
         )
 
         # Call LLM with structured output
@@ -73,7 +79,9 @@ def check_eligibility(candidate_experience, candidate_education, job_experience,
 
 
 # Load Qwen embedding model
-MODEL_NAME = "Qwen/Qwen3-Embedding-0.6B"
+cfg=config['embedding_model']
+MODEL_NAME = cfg.get('embedding_model')
+print(MODEL_NAME)
 _tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
 _model = AutoModel.from_pretrained(MODEL_NAME)
 
@@ -94,8 +102,11 @@ def cosine_sim_matrix(A: np.ndarray, B: np.ndarray) -> np.ndarray:
     if A.size == 0 or B.size == 0:
         return np.zeros((A.shape[0], B.shape[0]), dtype=np.float32)
     return np.matmul(A, B.T)
-
-SIM_THRESHOLD = 0.75  # adjust as needed (0.7–0.75 is a good range)
+cfs=config['SIM_THRESHOLD']
+SIM_THRESHOLD = cfs.get('skill_words_strictness', 0.8)
+SIM_THRESHOLD=float(SIM_THRESHOLD)
+# print(SIM_THRESHOLD)
+# print(type(SIM_THRESHOLD))
 
 def score_skills(job_skills: Dict[str, List[str]], resume_skills: Dict[str, List[str]]) -> Tuple[float, Dict]:
     must_skills = job_skills.get("must_skills", [])
@@ -167,6 +178,7 @@ def final_candidate_score(job: dict, resume: dict) -> dict:
 
     # Step 1: eligibility check
     eligible = check_eligibility(exp, edu, reqexp, reqedu)
+    print(eligible)
     if not eligible:
         return {
             "final_score": 0.0,
@@ -180,11 +192,11 @@ def final_candidate_score(job: dict, resume: dict) -> dict:
     # Step 3: final score
     final_score = 35.0 + score_65
     final_score = float(min(100.0, final_score))  # cap at 100
-
+    final_score = round(final_score, 2)
     return {
         "final_score": final_score,
         "eligible": True,
-        "base_score": 35.0,
-        "skill_score": score_65,
-        "debug": debug
+        # "base_score": 35.0,
+        # "skill_score": score_65,
+        # "debug": debug
     }

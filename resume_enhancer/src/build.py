@@ -146,10 +146,13 @@ def generate_resume_from_json(enhance_json):
         Paragraph(author, NAME_PARAGRAPH_STYLE)
     ])
     running_row_index[0] += 1
-    
-    table.append([
-        Paragraph(f"{email} | {phone} | {address}", CONTACT_PARAGRAPH_STYLE),
-    ])
+    contact_info = (
+    f'<a href="mailto:{email}">{email}</a> | '
+    f'{phone} | {address} | '
+    f'<a href="{linkedin}" color="blue">{linkedin}</a> | '
+    f'<a href="{github}" color="blue">{github}</a>'
+)
+    table.append([Paragraph(contact_info, CONTACT_PARAGRAPH_STYLE)])
     table_styles.append(('BOTTOMPADDING', (0, running_row_index[0]), (1, running_row_index[0]), 1))
     running_row_index[0] += 1
     
@@ -160,5 +163,7 @@ def generate_resume_from_json(enhance_json):
                 table.append(entry)
     
     print("Building resume...")
-    return generate_resume(OUTPUT_PDF_PATH, author, table, table_styles)
+    generate_resume(OUTPUT_PDF_PATH, author, table, table_styles)
+    # pdf.save(OUTPUT_PDF_PATH)
+    return OUTPUT_PDF_PATH
     # print(f"Resume generated at {OUTPUT_PDF_PATH}")
