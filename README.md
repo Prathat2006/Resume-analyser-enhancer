@@ -38,7 +38,8 @@ Prerequisites
 
 Installation (quick)
 1. Clone the repo
-   git clone [<repo_url>](https://github.com/Prathat2006/Resume-analyser-enhancer.git)
+   git clone https://github.com/Prathat2006/Resume-analyser-enhancer.git
+
    cd Resume-anlyser-enhancer
 
 2. Create & activate virtual environment
@@ -150,4 +151,4 @@ Extending & development tips
 - Add retry/backoff for large model downloads or remote LLM calls.
 
 # Important Note :
-this is backend for frontend clone this repo : https://github.com/Prathat2006/Resume-analyser-enhancer-frontend.git
+this is backend for frontend clone this repo :[<repo_url>](https://github.com/Prathat2006/Resume-analyser-enhancer-frontend.git)
